@@ -1,6 +1,7 @@
 // INIT EXPRESS & MONGOOSE
 const express = require("express");
 const mongoose = require("mongoose");
+const fs = require('fs').promises;
 
 // SETTING DRAW ROUTES
 const drawRoutes = require("./routes/draws");
@@ -113,7 +114,10 @@ mongoose
 
       socket.on('getDiff', () => io.emit('setDiff', diff));
 
-      socket.on("updateWord", async (data) => io.emit("wordUpdated", await data));
+      socket.on("updateWord", async (data) => {
+        word = await data;
+        io.emit("wordUpdated", await data)
+      });
 
       socket.on("getWord", () => io.emit("wordUpdated", word));
 
