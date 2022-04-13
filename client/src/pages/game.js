@@ -1,55 +1,69 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import Button from "../components/Button";
 import Canvas from "../components/Canvas";
+import Cols from "../components/Cols";
+import Image from "../components/Image";
+import Input from "../components/Input";
 import Row from "../components/Row";
+import Text from "../components/Text";
 
 function GamePage(props) {
+  // SETTING SOCKET
   const socket = props.socket;
 
+  // SETTING CANVAS REFS
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
 
-  // is player drawing (render)
-  const [isDrawing, setIsDrawing] = useState(false);
-
-  // Chosen word
-  const [word, setWord] = useState(null);
-
-  // Detect who is playing
-  const [whoIsPlaying, setWhoIsPlaying] = useState();
-
-  // is player guessing (render)
-  const [isGuessing, setIsGuessing] = useState(false);
-
-  const [isWon, setIsWon] = useState(false);
-  const [updates, setUpdates] = useState("");
+  // ACTIVE LINK STATE
   const [link, setLink] = useState("/");
 
-  useEffect(() => {
-    socket.emit("whoIsPlaying");
+  // WORD STATE
+  const [word, setWord] = useState(null);
 
+  // WHOS PLAYING STATE
+  const [whoIsPlaying, setWhoIsPlaying] = useState();
+  // ISDRAWING STATE (RENDER)
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  // ISGUESSING STATE (RENDER)
+  const [isGuessing, setIsGuessing] = useState(false);
+
+  // ISWON STATE (RENDER)
+  const [isWon, setIsWon] = useState(false);
+
+  // ISFAILED STATES (RENDER)
+  const [isFailed, setIsFailed] = useState(false);
+
+  // UPDATES STATE (MESSAGES)
+  const [updates, setUpdates] = useState("");
+
+  useEffect(() => {
+    // STARTUP EMITS (FOR UPDATES)
+    socket.emit("whoIsPlaying");
     socket.emit("getWord");
 
-    
+    // UPDATING WORD IF UPDATED
     socket.on("wordUpdated", (word) => {
       setWord(word);
     });
-    
 
-    
+    // HANDLING DRAW WHEN SENT
     socket.on("drawSent", (who) => {
       handleGuessing(who);
     });
-    
+
+    // SETTING UP NEXT GAME
     socket.on("nextGame", (whosNext, difficulty) => {
       if (whosNext === localStorage.getItem("name")) {
         handleNextGame(true, difficulty);
       } else {
         handleNextGame(false, difficulty);
-      };
+      }
     });
-    
+
+    // SETTING WHOS PLAYING STATE
     socket.on("whoIsPlaying", async (player) => {
       if (localStorage.getItem("name") === (await player)) {
         setWhoIsPlaying(await player);
@@ -58,25 +72,43 @@ function GamePage(props) {
         setIsDrawing(false);
       }
     });
-  
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // PREVENT TOUCH SCROLL
+    if (document.getElementById(canvasRef)) {
+      document
+        .getElementById(canvasRef)
+        .addEventListener("touchstart", (e) => e.preventDefault(), {
+          passive: false,
+        });
+      document
+        .getElementById(canvasRef)
+        .addEventListener("touchmove", (e) => e.preventDefault(), {
+          passive: false,
+        });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  
-  
+  // HANDLING DRAW WHEN SENT
   const handleNextGame = (isNext, diff) => {
     setIsWon(true);
     setIsDrawing(false);
     setIsGuessing(false);
-    setUpdates("Great job ! +" + diff + " points");
+    setUpdates("Great job! (+" + diff + " points)");
     if (isNext) {
       setLink("/choose");
     } else {
       setLink("/game");
     }
+    setTimeout(() => {
+      if (document.getElementById("nextGame")) {
+        document.getElementById("nextGame").click();
+      }
+    }, 10000);
   };
 
+  // HANDLING WHOS GUESSING
   const handleGuessing = async (player) => {
     if (localStorage.getItem("name") === (await player)) {
       setIsGuessing(true);
@@ -87,18 +119,31 @@ function GamePage(props) {
     }
   };
 
-  const tryGuess = (e) => {
+  // HANDLING WRONG ANSWER (RENDER)
+  const wrongAnswer = () => {
+    setIsFailed(true);
+    setTimeout(() => {
+      setIsFailed(false);
+      if (updates === "Wrong, try again !") {
+        setUpdates("");
+      }
+    }, 10000);
+  };
+
+  // CHECKING GUESS
+  const tryGuess = () => {
     if (document.getElementById("word").value.toLowerCase() === word) {
       socket.emit("updateScore");
       setIsGuessing(false);
     } else {
+      wrongAnswer();
       setUpdates("Wrong, try again !");
     }
   };
 
-
   return (
-    <div className="mainBlock centered col-12">
+    <React.Fragment>
+      {/* SETTING CANVAS IF DRAWING */}
       {isDrawing && (
         <React.Fragment>
           <Canvas
@@ -110,95 +155,93 @@ function GamePage(props) {
         </React.Fragment>
       )}
 
+      {/* SETTING WAITING FOR ACTION PAGE */}
       {!isGuessing && !isDrawing && !isWon && (
         <React.Fragment>
           <Row>
-            <div className="col-12">
-              <img
-                src={process.env.PUBLIC_URL + "/images/logo.png"}
-                className="image"
-                alt="Draw & Guess"
-              />
-            </div>
+            <Cols size={12}>
+              <Image type="logo" />
+            </Cols>
           </Row>
           <Row>
-            <div className="col-12">
-              <p>
+            <Cols size={12}>
+              <Text>
                 Waiting for {whoIsPlaying ? whoIsPlaying : "player"} to take an
                 action...
-              </p>
-            </div>
+              </Text>
+            </Cols>
           </Row>
         </React.Fragment>
       )}
 
+      {/* SETTING GUESSING PAGE */}
       {isGuessing && (
         <React.Fragment>
           <Row>
-            <div className="col-12">
-              <p>
-                <img
-                  src="http://localhost:3001/api/getCanvas"
-                  className="canvasImg"
-                  alt="canvas"
-                />
-              </p>
-            </div>
+            <Cols size={12}>
+              <Text>
+                <Image type="canvas" />
+              </Text>
+            </Cols>
           </Row>
           <Row>
-            <div className="col-12">
-              <form action="" className="mt-5">
-                <label htmlFor="word">Enter guess:</label>
-                <Row>
-                  <input type="text" id="word"></input>
-                </Row>
-                <Row>
-                  <a
-                    className="btn"
-                    id="wordButton"
-                    onClick={(e) => tryGuess(e)}
-                  >
-                    Check
-                  </a>
-                </Row>
-                <Row>
-                  <p>{updates}</p>
-                </Row>
-              </form>
-            </div>
+            <Cols size={12}>
+              <Text type={"headline"} fontsize={20}>
+                Answer:
+              </Text>
+              <Row>
+                <Input
+                  id="word"
+                  class={isFailed && "danger"}
+                  placeholder="Enter Word"
+                />
+              </Row>
+              <Row>
+                <Button
+                  id={"guess"}
+                  class={isFailed && "danger"}
+                  size={"large"}
+                  value={"CHECK"}
+                  onClick={tryGuess}
+                />
+              </Row>
+              <Row>
+                <Text>{updates}</Text>
+              </Row>
+            </Cols>
           </Row>
         </React.Fragment>
       )}
+
+      {/* SETTING WINNING PAGE */}
       {isWon && (
         <React.Fragment>
           <Row>
-            <div className="col-12">
-              <img
-                src={process.env.PUBLIC_URL + "/images/logo.png"}
-                className="image"
-                alt="Draw & Guess"
-              />
-            </div>
+            <Cols size={12}>
+              <Image type="logo" />
+            </Cols>
           </Row>
           <Row>
-            <div className="col-12">
-              <form action="">
-                <p>{updates}</p>
-                <Row></Row>
-                <Row>
-                  <Link to={link} className="btn" onClick={() => {
-                    setIsWon(false)
-                    setUpdates('');
-                  }}>
-                    Next Game
-                  </Link>
-                </Row>
-              </form>
-            </div>
+            <Cols size={12}>
+              <Text>{updates}</Text>
+              <Row></Row>
+              <Row>
+                <Button
+                  to={link}
+                  id={"nextGame"}
+                  size={"large"}
+                  value={"Next Game"}
+                  onClick={() => {
+                    setIsWon(false);
+                    setUpdates("");
+                  }}
+                />
+              </Row>
+            </Cols>
           </Row>
         </React.Fragment>
       )}
-    </div>
+    </React.Fragment>
   );
 }
 

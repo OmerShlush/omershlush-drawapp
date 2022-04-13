@@ -1,0 +1,24 @@
+
+.input[type='text']
+{
+    background-color: #f5deb3;
+    outline: 0;
+    border-width: 0 0 1px;
+    border-color: #005b72;
+    color: #005b72;
+    margin: 10px;
+    padding: 10px;
+}
+
+.input[type='text']:focus
+{
+    border-width: 0 0 2px;
+    transform: scale(1.05);
+}
+
+.danger[type='text']
+{
+    background-color: #c55a5a;
+    border-color:#c50000;
+    color: #000000;
+}

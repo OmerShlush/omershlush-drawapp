@@ -1,5 +1,7 @@
-function Row (props) {
-    return <div className="row">{props.children}</div>;
+import "./Row.css";
+
+function Row(props) {
+  return <div className="row">{props.children}</div>;
 }
 
 export default Row;

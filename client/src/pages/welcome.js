@@ -1,101 +1,101 @@
 import Row from "../components/Row";
-import Emptycol from "../components/Emptycol";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import Cols from "../components/Cols";
+import Table from "../components/Table";
+import Text from "../components/Text";
+import Button from "../components/Button";
+import Input from "../components/Input";
+import Image from "../components/Image";
 
 function Welcome() {
-  const submitHandler = (e) => {
+  // Handle username
+  const submitHandler = () => {
     if (document.getElementById("username")) {
       const username = document.getElementById("username").value;
       localStorage.setItem("name", username);
     }
   };
 
+  // Fetching High Scores
   const [hs, setHs] = useState();
 
   useEffect(() => {
-
     fetchHS();
-
   }, []);
 
   const fetchHS = async () => {
     let newHs = [];
-    const response = await fetch('http://localhost:3001/api/highScore');
-    await response.json()
-    .then(response => response.map((high) => {
-      return newHs = [...newHs, high];
-    }))
-    .then(highScores => {
-      setHs(highScores);
-    });
+    const response = await fetch("http://localhost:3001/api/highScore");
+    await response
+      .json()
+      .then((response) =>
+        response.map((high) => {
+          return (newHs = [...newHs, high]);
+        })
+      )
+      .then((highScores) => {
+        setHs(highScores);
+      });
     setHs(newHs);
   };
 
   return (
-    <div className="mainBlock centered col-12">
+    <React.Fragment>
+      {/* choosing name */}
       <Row>
-        <Row>
-          <div className="col-12">
-            <img
-              src={process.env.PUBLIC_URL + "/images/logo.png"}
-              alt="Draw & Guess"
-            />
-          </div>
-        </Row>
-        <React.Fragment>
-          <label className="centered" htmlFor="username">
-            Player Name
-          </label>
-          <Row>
-            <div className="col-12">
-              <Emptycol cols={4} />
-              <input type="text" className="col-4" id="username" />
-            </div>
-          </Row>
-        </React.Fragment>
-
-        <Row>
-          <div className="col-12">
-            <Link
-              to="/waiting"
-              className="btn"
-              onClick={(e) => submitHandler(e)}
-            >
-              Join Game
-            </Link>
-          </div>
-        </Row>
-{hs &&  <Row>
-        <h2>High Scores (TOP 3)</h2>
-
-          <table className="col-12">
-            <tbody>
-            <tr>
-              <th>Player A</th>
-              <th>Player B</th>
-              <th>HScore</th>
-            </tr>
-            <tr>
-              <td>{hs[0].playerA}</td>
-              <td>{hs[0].playerB}</td>
-              <td>{hs[0].score}</td>
-            </tr>
-            <tr>
-              <td>{hs[1].playerA}</td>
-              <td>{hs[1].playerB}</td>
-              <td>{hs[1].score}</td>
-            </tr>
-              <tr>
-              <td>{hs[2].playerA}</td>
-              <td>{hs[2].playerB}</td>
-              <td>{hs[2].score}</td>
-            </tr>
-            </tbody>
-          </table>
-        </Row>}
+        <Cols size={12}>
+          <Image type="logo" />
+        </Cols>
       </Row>
-    </div>
+      <React.Fragment>
+        <Text type={"headline"} fontsize={20}>
+          Player Name
+        </Text>
+        <Row>
+          <Input id="username" placeholder="Enter Name" />
+        </Row>
+      </React.Fragment>
+
+      <Row>
+        <Cols size={12}>
+          <Button
+            to={"/waiting"}
+            id={"enterGame"}
+            type={"choice"}
+            size={"large"}
+            onClick={submitHandler}
+            value={"Join Game"}
+          />
+        </Cols>
+      </Row>
+      {/* highscores table */}
+      {hs && (
+        <Row>
+          <Table
+            header={"High Scores (Top 3)"}
+            rows={3}
+            headlines={["PlayerA", "PlayerB", "HighScore"]}
+            context={[
+              {
+                PlayerA: hs[0].playerA,
+                PlayerB: hs[0].playerB,
+                score: hs[0].score,
+              },
+              {
+                PlayerA: hs[1].playerA,
+                PlayerB: hs[1].playerB,
+                score: hs[1].score,
+              },
+              {
+                PlayerA: hs[2].playerA,
+                PlayerB: hs[2].playerB,
+                score: hs[2].score,
+              },
+            ]}
+          />
+        </Row>
+      )}
+    </React.Fragment>
   );
 }
 

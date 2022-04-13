@@ -4,60 +4,11 @@
     font-family: sans-serif;
   }
 
-  [class*="col-"] {
-    float: left;
-    padding: 15px;
-  }
 
-/* For mobile phones: */
-[class*="col-"] {
-  width: 100%;
-}
-
-@media only screen and (min-width: 768px) {
-  /* For desktop: */
-  .col-1 {width: 8.33%;}
-  .col-2 {width: 16.66%;}
-  .col-3 {width: 25%;}
-  .col-4 {width: 33.33%;}
-  .col-5 {width: 41.66%;}
-  .col-6 {width: 50%;}
-  .col-7 {width: 58.33%;}
-  .col-8 {width: 66.66%;}
-  .col-9 {width: 75%;}
-  .col-10 {width: 83.33%;}
-  .col-11 {width: 91.66%;}
-  .col-12 {width: 100%;}
-
-}
-
-.row::after {
-    content: "";
-    clear: both;
-    display: table;
-  }
-
-  body {
+body {
     margin: 0;
     background-color: #008caf;
     padding: 10px;
-}
-
-.main {
-    background-color: wheat;
-    border-radius: 2rem;
-    padding: 0;
-    
-}
-
-.mainBlock
-{
-  padding: 10px;
-}
-
-.centered
-{
-  text-align: center;
 }
 
 
@@ -67,45 +18,19 @@
   border-radius: 2rem;
 }
 
-input[type=text] {
-  padding: 12px 20px;
-  margin: 8px 0;
-  box-sizing: border-box;
-  background-color: #FFFFFF;
-  color: #008caf;
-  font-size: 18px;
-  border-color: #c5c5c5;
-}
-
-input[type=text]:focus {
-  background-color: #008caf;
-  color: white;
-  border-color: #585858;
-
-}
 
 .btn {
   padding: 10px;
 
 }
 
-.danger {
-  color: #000000;
-  background-color: #ff0000;
-}
+
 
 .drawingBlock
 {
   padding: 10px;
   text-align: center;
   touch-action: none;
-}
-.drawingCanvas
-{
-  align-content: center;
-  background-color: #FFFFFF;
-  border-radius: 10px;
-  border: 2px solid #008caf;
 }
 
 .color-btn
@@ -165,28 +90,7 @@ input[type=text]:focus {
   font-weight: bold;
 }
 
-a.btn
-{
-  text-decoration: none;
-  font-weight: bold;
-  color:#008caf;
-  padding: 5px;
-  border-radius: 5px;
-  border: 2px solid #008caf;
-  margin: 5px;
-}
 
-a.btn:hover
-{
-  opacity: 50%;
-}
-
-a.active
-{
-  padding: 7px;
-  color:#004f63;
-  border: 2px solid #004f63;
-}
 
 a.words
 {

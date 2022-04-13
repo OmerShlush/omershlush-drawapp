@@ -1,18 +1,26 @@
+// INIT EXPRESS & MONGOOSE
 const express = require("express");
 const mongoose = require("mongoose");
 
-const bodyParser = require("body-parser");
+// SETTING DRAW ROUTES
 const drawRoutes = require("./routes/draws");
-const fs = require("fs").promises;
 
 const http = require("http");
 const app = express();
 
-const server = http.createServer(app);
-const { Server } = require("socket.io");
+// bodyParser
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
+
+// HIGH SCORE MODEL
 const HighScore = require("./models/HighScore");
 
+
+// SETTINGS SERVER WITH SOCKET IO
+const server = http.createServer(app);
+const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -21,20 +29,24 @@ const io = new Server(server, {
   },
 });
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
+// SETTING HEADERS FOR EVERY PATH
 app.use("/", (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  ); // If needed
-  res.setHeader("Access-Control-Allow-Headers", "content-type"); // If needed
+  ); 
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
   next();
 });
 
+// SETTING /API ROUTES
 app.use("/api", drawRoutes);
+
+// DEFAULT 404 PAGE
+app.use((req, res) => {
+  res.status(404).send('404 - Page Not Found.');
+});
 
 // Base Settings
 let users = [];
@@ -47,12 +59,13 @@ let word;
 let PlayerA;
 let PlayerB;
 
+// SERVER LISTEN && MONGODB ATLAS CONNECT
 mongoose
   .connect(
-    `mongodb+srv://omershlush:Q7mmQPbP7yKXQRe2@omerdevs.gr7hs.mongodb.net/drawdb?retryWrites=true&w=majority`
+    `mongodb+srv://moveo:moveo@omerdevs.gr7hs.mongodb.net/drawdb?retryWrites=true&w=majority`
   )
   .then(() => {
-    server.listen(3000);
+    server.listen(3001);
 
 
     io.on("connection", function (socket) {
@@ -69,7 +82,7 @@ mongoose
         }
       } else {
         io.to(socket.id).emit("busy");
-      }
+      };
 
       socket.on("updateName", (socket) => {
         if (!users[1]) {
@@ -98,29 +111,19 @@ mongoose
         };
       });
 
-      socket.on('getDiff', () => {
-        io.emit('setDiff', diff);
-      });
+      socket.on('getDiff', () => io.emit('setDiff', diff));
 
-      socket.on("updateWord", async (data) => {
-        word = await data;
-        io.emit("wordUpdated", await data);
-      });
+      socket.on("updateWord", async (data) => io.emit("wordUpdated", await data));
 
-      socket.on("getWord", () => {
-        io.emit("wordUpdated", word);
-      });
+      socket.on("getWord", () => io.emit("wordUpdated", word));
 
       socket.on("updateCanvas", async (data) => {
         canvas = await data;
-        // const imgUrl = await data.replace(/^data:image\/\w+;base64,/, "");
         const buf = Buffer.from(canvas, "base64");
         await fs.writeFile("images/lastcanvas.png", buf);
       });
 
-      socket.on("drawSent", () => {
-        io.emit("drawSent", whoIsPlaying);
-      });
+      socket.on("drawSent", () => io.emit("drawSent", whoIsPlaying));
 
       socket.on("changePlayer", () => {
         if (whoIsPlaying === PlayerA) {
@@ -130,9 +133,7 @@ mongoose
         }
       });
 
-      socket.on("whoIsPlaying", () => {
-        io.emit("whoIsPlaying", whoIsPlaying);
-      });
+      socket.on("whoIsPlaying", () => io.emit("whoIsPlaying", whoIsPlaying));
 
       socket.on("disconnect", () => {
         if(score > 0) {

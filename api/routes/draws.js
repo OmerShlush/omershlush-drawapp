@@ -10,5 +10,4 @@ router.get('/getCanvas', drawController.getCanvas);
 
 router.get('/highScore', drawController.getHs);
 
-
 module.exports = router;
