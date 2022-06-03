@@ -63,7 +63,7 @@ let PlayerB;
 // SERVER LISTEN && MONGODB ATLAS CONNECT
 mongoose
   .connect(
-    `mongodb+srv://moveo:moveo@omerdevs.gr7hs.mongodb.net/drawdb?retryWrites=true&w=majority`
+    `mongodb+srv://USERNAME:PASSWORD@omerdevs.gr7hs.mongodb.net/drawdb?retryWrites=true&w=majority`
   )
   .then(() => {
     server.listen(3001);
